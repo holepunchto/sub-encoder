@@ -1,0 +1,36 @@
+{
+  "name": "sub-encoder",
+  "version": "1.0.0",
+  "description": "Generate sub encodings for key/value stores",
+  "main": "index.js",
+  "scripts": {
+    "test": "standard && brittle test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrewosh/sub-encoder.git"
+  },
+  "keywords": [
+    "kv-store",
+    "encoding",
+    "hyperbee"
+  ],
+  "author": "Andrew Osheroff <andrewosh@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/andrewosh/sub-encoder/issues"
+  },
+  "homepage": "https://github.com/andrewosh/sub-encoder#readme",
+  "devDependencies": {
+    "brittle": "^3.1.1",
+    "hyperbee": "github:hypercore-protocol/hyperbee#key-encoding-fix",
+    "hypercore": "^10.3.2",
+    "random-access-memory": "^6.0.0",
+    "standard": "^17.0.0"
+  },
+  "dependencies": {
+    "b4a": "^1.6.0",
+    "codecs": "^3.0.0",
+    "is-options": "^1.0.2"
+  }
+}
