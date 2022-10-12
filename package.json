@@ -1,6 +1,6 @@
 {
   "name": "sub-encoder",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Generate sub encodings for key/value stores",
   "main": "index.js",
   "scripts": {
