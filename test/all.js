@@ -85,7 +85,21 @@ test('sub range encoding with hyperbee', async t => {
 })
 
 test('supports the empty sub', async t => {
+  const bee = new Hyperbee(new Hypercore(ram))
+  const enc = new SubEncoder()
 
+  const sub1 = enc.sub('1', { keyEncoding: 'utf-8' })
+  const sub2 = enc.sub('2', { keyEncoding: 'utf-8' })
+  const sub3 = enc.sub()
+
+  await bee.put('', b.from('a'), { keyEncoding: sub1 })
+  await bee.put('', b.from('b'), { keyEncoding: sub2 })
+  await bee.put(b.alloc(1), b.from('c'), { keyEncoding: sub3 })
+
+  const n3 = await collect(bee.createReadStream(sub3.range()))
+
+  t.is(n3.length, 1)
+  t.alike(n3[0].key, b.alloc(1))
 })
 
 test('can read out the empty key in subs', async t => {
