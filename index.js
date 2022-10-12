@@ -39,6 +39,11 @@ module.exports = class SubEncoder {
   }
 
   sub (prefix, opts) {
+    if (isOptions(prefix)) {
+      opts = prefix
+      prefix = null
+    }
+    if (!prefix) prefix = ''
     if (typeof prefix === 'string') {
       prefix = b.from(prefix)
     }
