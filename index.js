@@ -16,11 +16,7 @@ module.exports = class SubEncoder {
     if (typeof prefix === 'string') {
       prefix = b.from(prefix)
     }
-
     this.userEncoding = codecs(opts && opts.keyEncoding)
-    if (prefix && this.userEncoding) {
-      prefix = this.userEncoding.encode(prefix)
-    }
 
     const parent = opts && opts._parent
     const sub = opts && opts._sub
