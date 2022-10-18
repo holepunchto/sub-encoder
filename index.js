@@ -9,12 +9,32 @@ const LT_DEFAULT = b.alloc(0)
 
 module.exports = class SubEncoder {
   constructor (prefix, opts) {
-    if (isOptions(prefix)) {
+    if (!opts && isOptions(prefix)) {
       opts = prefix
       prefix = null
     }
-    this.prefix = prefix ? b.concat([prefix, SEP]) : null
+    if (typeof prefix === 'string') {
+      prefix = b.from(prefix)
+    }
+
     this.userEncoding = codecs(opts && opts.keyEncoding)
+    if (prefix && this.userEncoding) {
+      prefix = this.userEncoding.encode(prefix)
+    }
+
+    const parent = opts && opts._parent
+    const sub = opts && opts._sub
+    if (prefix && parent) {
+      this.prefix = b.concat([parent, prefix, SEP])
+    } else if (prefix) {
+      this.prefix = b.concat([prefix, SEP])
+    } else if (parent) {
+      this.prefix = b.concat([parent, SEP])
+    } else if (sub) {
+      this.prefix = SEP
+    } else {
+      this.prefix = null
+    }
   }
 
   encode (key) {
@@ -39,14 +59,10 @@ module.exports = class SubEncoder {
   }
 
   sub (prefix, opts) {
-    if (isOptions(prefix)) {
-      opts = prefix
-      prefix = null
-    }
-    if (!prefix) prefix = ''
-    if (typeof prefix === 'string') {
-      prefix = b.from(prefix)
-    }
-    return new SubEncoder(this.prefix ? b.concat([this.prefix, prefix]) : prefix, opts)
+    return new SubEncoder(prefix, {
+      ...opts,
+      _parent: this.prefix,
+      _sub: true
+    })
   }
 }

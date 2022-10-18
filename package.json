@@ -24,7 +24,7 @@
   "devDependencies": {
     "brittle": "^3.1.1",
     "hypercore": "^10.3.2",
-    "hyperbee": "^2.1.2",
+    "hyperbee": "github:hypercore-protocol/hyperbee#batch-put-encodings",
     "random-access-memory": "^6.0.0",
     "standard": "^17.0.0"
   },

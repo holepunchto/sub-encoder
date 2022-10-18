@@ -123,6 +123,19 @@ test('can read out the empty key in subs', async t => {
   t.alike(n3[0].key, b.alloc(1))
 })
 
+test('can create subs with dynamic keys/encodings', async t => {
+  const bee = new Hyperbee(new Hypercore(ram))
+  const enc = new SubEncoder()
+
+  const sub1 = enc.sub({ name: 's1' }, { keyEncoding: 'json' })
+  const sub2 = sub1.sub({ name: 'key1' }, { keyEncoding: 'json' })
+
+  await bee.put({ name: 'key' }, b.from('hello'), { keyEncoding: sub2 })
+
+  const n2 = await collect(bee.createReadStream(sub2.range()))
+  t.is(n2.length, 1)
+})
+
 async function collect (ite) {
   const res = []
   for await (const node of ite) {
