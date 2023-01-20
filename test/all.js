@@ -84,6 +84,43 @@ test('sub range encoding with hyperbee', async t => {
   }
 })
 
+test('sub range diff encoding with hyperbee', async t => {
+  const bee = new Hyperbee(new Hypercore(ram), { valueEncoding: 'utf-8' })
+
+  const enc = new SubEncoder({ keyEncoding: 'utf-8' })
+  const subA = enc.sub('sub-a', { keyEncoding: 'utf-8' })
+  const subB = enc.sub('sub-b', { keyEncoding: 'utf-8' })
+  const subC = enc.sub('sub-c', { keyEncoding: 'utf-8' })
+
+  await bee.put(enc.encode('d1'), 'd2')
+  await bee.put(subA.encode('a1'), 'a1')
+  await bee.put(subB.encode('b1'), 'b1')
+  await bee.put(subB.encode('b2'), 'b2')
+  await bee.put(subB.encode('b3'), 'b3')
+  await bee.put(subC.encode('c1'), 'c1')
+
+  {
+    const range = enc.range({ lt: 'sub' })
+    const nodes = await collect(bee.createDiffStream(0, range))
+    t.is(nodes.length, 1)
+    t.is(nodes[0].left.key, 'd1')
+  }
+
+  {
+    const range = subA.range()
+    const nodes = await collect(bee.createDiffStream(0, range))
+    t.is(nodes.length, 1)
+    t.is(nodes[0].left.key, 'a1')
+  }
+
+  {
+    const range = subB.range({ gt: 'b1', lt: 'b3' })
+    const nodes = await collect(bee.createDiffStream(0, range))
+    t.is(nodes.length, 1)
+    t.is(nodes[0].left.key, 'b2')
+  }
+})
+
 test('supports the empty sub', async t => {
   const bee = new Hyperbee(new Hypercore(ram))
   const enc = new SubEncoder()

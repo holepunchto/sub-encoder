@@ -24,13 +24,13 @@
   "devDependencies": {
     "brittle": "^3.1.1",
     "hypercore": "^10.3.2",
-    "hyperbee": "github:hypercore-protocol/hyperbee#batch-put-encodings",
     "random-access-memory": "^6.0.0",
     "standard": "^17.0.0"
   },
   "dependencies": {
     "b4a": "^1.6.0",
     "codecs": "^3.0.0",
+    "hyperbee": "^2.4.0",
     "is-options": "^1.0.2"
   }
 }
