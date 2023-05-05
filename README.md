@@ -9,7 +9,7 @@ const subB = enc.sub('sub-b', { keyEncoding: 'binary' }) // subs support custom 
 
 await bee.put('k1', 'b', { keyEncoding: enc })
 await bee.put('a1', 'a1', { keyEncoding: subA })
-await bee.put('b1', 'b1' { keyEncoding: subB })
+await bee.put('b1', 'b1', { keyEncoding: subB })
 
 // k1
 await bee.get('k1', { keyEncoding: enc })
