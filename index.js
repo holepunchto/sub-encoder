@@ -56,6 +56,7 @@ module.exports = class SubEncoder {
 
   sub (prefix, opts) {
     return new SubEncoder(prefix, {
+      keyEncoding: this.userEncoding,
       ...opts,
       _parent: this.prefix,
       _sub: true

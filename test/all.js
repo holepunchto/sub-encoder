@@ -160,6 +160,25 @@ test('can read out the empty key in subs', async t => {
   t.alike(n3[0].key, b.alloc(1))
 })
 
+test('keyEncoding is passed to subs as default', async t => {
+  const bee = new Hyperbee(new Hypercore(ram))
+  const enc = new SubEncoder({ keyEncoding: 'utf-8' })
+
+  const sub = enc.sub('mySub')
+
+  await bee.put('I am text', 'not buffer', { keyEncoding: sub })
+
+  const entry = await bee.get('I am text', { keyEncoding: sub })
+  t.is(entry.key, 'I am text')
+
+  // But default can be overriden
+  const bufferSub = enc.sub('otherSub', { keyEncoding: 'binary' })
+  await bee.put('I am buffer', '(overriden)', { keyEncoding: bufferSub })
+
+  const bufferEntry = await bee.get('I am buffer', { keyEncoding: bufferSub })
+  t.alike(bufferEntry.key, b.from('I am buffer'))
+})
+
 async function collect (ite) {
   const res = []
   for await (const node of ite) {
