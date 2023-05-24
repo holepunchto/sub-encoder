@@ -51,10 +51,10 @@ test('sub key encoding with hyperbee', async t => {
 test('sub range encoding with hyperbee', async t => {
   const bee = new Hyperbee(new Hypercore(ram), { valueEncoding: 'utf-8' })
 
-  const enc = new SubEncoder({ keyEncoding: 'utf-8' })
-  const subA = enc.sub('sub-a', { keyEncoding: 'utf-8' })
-  const subB = enc.sub('sub-b', { keyEncoding: 'utf-8' })
-  const subC = enc.sub('sub-c', { keyEncoding: 'utf-8' })
+  const enc = new SubEncoder(null, 'utf-8')
+  const subA = enc.sub('sub-a', 'utf-8')
+  const subB = enc.sub('sub-b', 'utf-8')
+  const subC = enc.sub('sub-c', 'utf-8')
 
   await bee.put(enc.encode('d1'), 'd2')
   await bee.put(subA.encode('a1'), 'a1')
@@ -88,10 +88,10 @@ test('sub range encoding with hyperbee', async t => {
 test('sub range diff encoding with hyperbee', async t => {
   const bee = new Hyperbee(new Hypercore(ram), { valueEncoding: 'utf-8' })
 
-  const enc = new SubEncoder({ keyEncoding: 'utf-8' })
-  const subA = enc.sub('sub-a', { keyEncoding: 'utf-8' })
-  const subB = enc.sub('sub-b', { keyEncoding: 'utf-8' })
-  const subC = enc.sub('sub-c', { keyEncoding: 'utf-8' })
+  const enc = new SubEncoder(null, 'utf-8')
+  const subA = enc.sub('sub-a', 'utf-8')
+  const subB = enc.sub('sub-b', 'utf-8')
+  const subC = enc.sub('sub-c', 'utf-8')
 
   await bee.put(enc.encode('d1'), 'd2')
   await bee.put(subA.encode('a1'), 'a1')
@@ -126,8 +126,8 @@ test('supports the empty sub', async t => {
   const bee = new Hyperbee(new Hypercore(ram))
   const enc = new SubEncoder()
 
-  const sub1 = enc.sub('1', { keyEncoding: 'utf-8' })
-  const sub2 = enc.sub('2', { keyEncoding: 'utf-8' })
+  const sub1 = enc.sub('1', 'utf-8')
+  const sub2 = enc.sub('2', 'utf-8')
   const sub3 = enc.sub()
 
   await bee.put('', b.from('a'), { keyEncoding: sub1 })
@@ -144,9 +144,9 @@ test('can read out the empty key in subs', async t => {
   const bee = new Hyperbee(new Hypercore(ram))
   const enc = new SubEncoder()
 
-  const sub1 = enc.sub('1', { keyEncoding: 'utf-8' })
-  const sub2 = enc.sub('2', { keyEncoding: 'utf-8' })
-  const sub3 = enc.sub('3', { keyEncoding: 'binary' })
+  const sub1 = enc.sub('1', 'utf-8')
+  const sub2 = enc.sub('2', 'utf-8')
+  const sub3 = enc.sub('3', 'binary')
 
   await bee.put('', b.from('a'), { keyEncoding: sub1 })
   await bee.put('', b.from('b'), { keyEncoding: sub2 })
