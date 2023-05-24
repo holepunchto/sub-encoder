@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/andrewosh/sub-encoder.git"
+    "url": "git+https://github.com/holepunchto/sub-encoder.git"
   },
   "keywords": [
     "kv-store",
@@ -16,11 +16,11 @@
     "hyperbee"
   ],
   "author": "Andrew Osheroff <andrewosh@gmail.com>",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/andrewosh/sub-encoder/issues"
+    "url": "https://github.com/holepunchto/sub-encoder/issues"
   },
-  "homepage": "https://github.com/andrewosh/sub-encoder#readme",
+  "homepage": "https://github.com/holepunchto/sub-encoder#readme",
   "devDependencies": {
     "brittle": "^3.1.1",
     "hyperbee": "^2.11.0",
