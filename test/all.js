@@ -63,22 +63,22 @@ test('sub range encoding with hyperbee', async t => {
   await bee.put(subC.encode('c1'), 'c1')
 
   {
-    const range = enc.range({ lt: 'sub' })
-    const nodes = await collect(bee.createReadStream(range))
+    const range = { lt: 'sub' }
+    const nodes = await collect(bee.createReadStream(range, { keyEncoding: enc }))
     t.is(nodes.length, 1)
     t.is(nodes[0].key, 'd1')
   }
 
   {
-    const range = subA.range()
-    const nodes = await collect(bee.createReadStream(range))
+    const range = {}
+    const nodes = await collect(bee.createReadStream(range, { keyEncoding: subA }))
     t.is(nodes.length, 1)
     t.is(nodes[0].key, 'a1')
   }
 
   {
-    const range = subB.range({ gt: 'b1', lt: 'b3' })
-    const nodes = await collect(bee.createReadStream(range))
+    const range = { gt: 'b1', lt: 'b3' }
+    const nodes = await collect(bee.createReadStream(range, { keyEncoding: subB }))
     t.is(nodes.length, 1)
     t.is(nodes[0].key, 'b2')
   }
@@ -100,22 +100,22 @@ test('sub range diff encoding with hyperbee', async t => {
   await bee.put(subC.encode('c1'), 'c1')
 
   {
-    const range = enc.range({ lt: 'sub' })
-    const nodes = await collect(bee.createDiffStream(0, range))
+    const range = { lt: 'sub' }
+    const nodes = await collect(bee.createDiffStream(0, range, { keyEncoding: enc }))
     t.is(nodes.length, 1)
     t.is(nodes[0].left.key, 'd1')
   }
 
   {
-    const range = subA.range()
-    const nodes = await collect(bee.createDiffStream(0, range))
+    const range = {}
+    const nodes = await collect(bee.createDiffStream(0, range, { keyEncoding: subA }))
     t.is(nodes.length, 1)
     t.is(nodes[0].left.key, 'a1')
   }
 
   {
-    const range = subB.range({ gt: 'b1', lt: 'b3' })
-    const nodes = await collect(bee.createDiffStream(0, range))
+    const range = { gt: 'b1', lt: 'b3' }
+    const nodes = await collect(bee.createDiffStream(0, range, { keyEncoding: subB }))
     t.is(nodes.length, 1)
     t.is(nodes[0].left.key, 'b2')
   }
@@ -133,7 +133,7 @@ test('supports the empty sub', async t => {
   await bee.put('', b.from('b'), { keyEncoding: sub2 })
   await bee.put(b.alloc(1), b.from('c'), { keyEncoding: sub3 })
 
-  const n3 = await collect(bee.createReadStream(sub3.range()))
+  const n3 = await collect(bee.createReadStream({ keyEncoding: sub3 }))
 
   t.is(n3.length, 1)
   t.alike(n3[0].key, b.alloc(1))
@@ -151,9 +151,9 @@ test('can read out the empty key in subs', async t => {
   await bee.put('', b.from('b'), { keyEncoding: sub2 })
   await bee.put(b.alloc(1), b.from('c'), { keyEncoding: sub3 })
 
-  const n1 = await collect(bee.createReadStream(sub1.range()))
-  const n2 = await collect(bee.createReadStream(sub2.range()))
-  const n3 = await collect(bee.createReadStream(sub3.range()))
+  const n1 = await collect(bee.createReadStream({ keyEncoding: sub1 }))
+  const n2 = await collect(bee.createReadStream({ keyEncoding: sub2 }))
+  const n3 = await collect(bee.createReadStream({ keyEncoding: sub3 }))
 
   t.is(n1[0].key, '')
   t.is(n2[0].key, '')
