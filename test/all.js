@@ -63,22 +63,22 @@ test('sub range encoding with hyperbee', async t => {
   await bee.put(subC.encode('c1'), 'c1')
 
   {
-    const range = { lt: 'sub', keyEncoding: enc }
-    const nodes = await collect(bee.createReadStream(range))
+    const range = { lt: 'sub' }
+    const nodes = await collect(bee.createReadStream(range, { keyEncoding: enc }))
     t.is(nodes.length, 1)
     t.is(nodes[0].key, 'd1')
   }
 
   {
-    const range = { keyEncoding: subA }
-    const nodes = await collect(bee.createReadStream(range))
+    const range = {}
+    const nodes = await collect(bee.createReadStream(range, { keyEncoding: subA }))
     t.is(nodes.length, 1)
     t.is(nodes[0].key, 'a1')
   }
 
   {
-    const range = { gt: 'b1', lt: 'b3', keyEncoding: subB }
-    const nodes = await collect(bee.createReadStream(range))
+    const range = { gt: 'b1', lt: 'b3' }
+    const nodes = await collect(bee.createReadStream(range, { keyEncoding: subB }))
     t.is(nodes.length, 1)
     t.is(nodes[0].key, 'b2')
   }
@@ -100,22 +100,22 @@ test('sub range diff encoding with hyperbee', async t => {
   await bee.put(subC.encode('c1'), 'c1')
 
   {
-    const range = { lt: 'sub', keyEncoding: enc }
-    const nodes = await collect(bee.createDiffStream(0, range))
+    const range = { lt: 'sub' }
+    const nodes = await collect(bee.createDiffStream(0, range, { keyEncoding: enc }))
     t.is(nodes.length, 1)
     t.is(nodes[0].left.key, 'd1')
   }
 
   {
-    const range = { keyEncoding: subA }
-    const nodes = await collect(bee.createDiffStream(0, range))
+    const range = {}
+    const nodes = await collect(bee.createDiffStream(0, range, { keyEncoding: subA }))
     t.is(nodes.length, 1)
     t.is(nodes[0].left.key, 'a1')
   }
 
   {
-    const range = { gt: 'b1', lt: 'b3', keyEncoding: subB }
-    const nodes = await collect(bee.createDiffStream(0, range))
+    const range = { gt: 'b1', lt: 'b3' }
+    const nodes = await collect(bee.createDiffStream(0, range, { keyEncoding: subB }))
     t.is(nodes.length, 1)
     t.is(nodes[0].left.key, 'b2')
   }
