@@ -2,6 +2,7 @@ const test = require('brittle')
 
 const Hypercore = require('hypercore')
 const Hyperbee = require('hyperbee')
+const IndexEncoder = require('index-encoder')
 const ram = require('random-access-memory')
 const b = require('b4a')
 
@@ -158,6 +159,33 @@ test('can read out the empty key in subs', async t => {
   t.is(n1[0].key, '')
   t.is(n2[0].key, '')
   t.alike(n3[0].key, b.alloc(1))
+})
+
+test('sub + index-encoder combination', async t => {
+  const root = new SubEncoder()
+  const enc = {
+    keyEncoding: root.sub(b.from([1]), {
+      keyEncoding: new IndexEncoder([
+        IndexEncoder.UINT,
+        IndexEncoder.STRING
+      ])
+    }),
+    valueEncoding: 'utf-8'
+  }
+  const bee = new Hyperbee(new Hypercore(ram))
+
+  await bee.put([1, 'a'], 'a', enc)
+  await bee.put([1, 'b'], 'b', enc)
+  await bee.put([2, 'aa'], 'aa', enc)
+  await bee.put([2, 'bb'], 'bb', enc)
+  await bee.put([3, 'aaa'], 'aaa', enc)
+  await bee.put([3, 'bbb'], 'bbb', enc)
+
+  const expectedKeys = [[2, 'aa'], [2, 'bb']]
+  for await (const node of bee.createReadStream({ gt: [1], lt: [3] }, enc)) {
+    t.alike(node.key, expectedKeys.shift())
+  }
+  t.is(expectedKeys.length, 0)
 })
 
 async function collect (ite) {
