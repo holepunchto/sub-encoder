@@ -29,30 +29,46 @@ module.exports = class SubEncoder {
     } else {
       this.prefix = null
     }
+
+    this.lt = this.prefix && b.concat([this.prefix.subarray(0, this.prefix.byteLength - 1), SEP_BUMPED])
+  }
+
+  _userEncodeRange (r) {
+    if (this.userEncoding.encodeRange) return this.userEncoding.encodeRange(r)
+
+    return {
+      gt: r.gt && this.userEncoding.encode(r.gt),
+      gte: r.gte && this.userEncoding.encode(r.gte),
+      lte: r.lte && this.userEncoding.encode(r.lte),
+      lt: r.lt && this.userEncoding.encode(r.lt)
+    }
+  }
+
+  _prefix (key) {
+    return this.prefix ? b.concat([this.prefix, key]) : key
   }
 
   encode (key) {
-    if (this.userEncoding) key = this.userEncoding.encode(key)
-    if (this.prefix) key = b.concat([this.prefix, key])
-    return key
+    return this._prefix(this.userEncoding.encode(key))
   }
 
-  encodeRange ({ gt, gte, lte, lt }) {
-    if (gt) gt = this.encode(gt)
-    else if (gte) gte = this.encode(gte)
-    else if (this.prefix) gte = this.prefix
+  encodeRange (range) {
+    const r = this._userEncodeRange(range)
 
-    if (lt) lt = this.encode(lt)
-    else if (lte) lte = this.encode(lte)
-    else if (this.prefix) lt = b.concat([this.prefix.subarray(0, this.prefix.byteLength - 1), SEP_BUMPED])
+    if (r.gt) r.gt = this._prefix(r.gt)
+    else if (r.gte) r.gte = this._prefix(r.gte)
+    else if (this.prefix) r.gte = this.prefix
 
-    return { gt, gte, lte, lt }
+    if (r.lt) r.lt = this._prefix(r.lt)
+    else if (r.lte) r.lte = this._prefix(r.lte)
+    else if (this.prefix) r.lt = this.lt
+
+    return r
   }
 
   decode (key) {
     if (this.prefix) key = key.subarray(this.prefix.byteLength)
-    if (this.userEncoding) key = this.userEncoding.decode(key)
-    return key
+    return this.userEncoding.decode(key)
   }
 
   sub (prefix, opts) {
