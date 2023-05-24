@@ -1,4 +1,3 @@
-const isOptions = require('is-options')
 const codecs = require('codecs')
 const b = require('b4a')
 
@@ -6,60 +5,63 @@ const SEP = b.alloc(1)
 const SEP_BUMPED = b.from([0x1])
 
 module.exports = class SubEncoder {
-  constructor (prefix, opts) {
-    if (!opts && isOptions(prefix)) {
-      opts = prefix
-      prefix = null
-    }
-    if (typeof prefix === 'string') {
-      prefix = b.from(prefix)
-    }
-    this.userEncoding = codecs(opts && opts.keyEncoding)
+  constructor (prefix, encoding) {
+    this.userEncoding = codecs(encoding)
+    this.prefix = typeof prefix === 'string' ? b.from(prefix) : (prefix || null)
+    this.lt = this.prefix && b.concat([this.prefix.subarray(0, this.prefix.byteLength - 1), SEP_BUMPED])
+  }
 
-    const parent = opts && opts._parent
-    const sub = opts && opts._sub
-    if (prefix && parent) {
-      this.prefix = b.concat([parent, prefix, SEP])
-    } else if (prefix) {
-      this.prefix = b.concat([prefix, SEP])
-    } else if (parent) {
-      this.prefix = b.concat([parent, SEP])
-    } else if (sub) {
-      this.prefix = SEP
-    } else {
-      this.prefix = null
+  _encodeRangeUser (r) {
+    if (this.userEncoding.encodeRange) return this.userEncoding.encodeRange(r)
+
+    return {
+      gt: r.gt && this.userEncoding.encode(r.gt),
+      gte: r.gte && this.userEncoding.encode(r.gte),
+      lte: r.lte && this.userEncoding.encode(r.lte),
+      lt: r.lt && this.userEncoding.encode(r.lt)
     }
+  }
+
+  _addPrefix (key) {
+    return this.prefix ? b.concat([this.prefix, key]) : key
   }
 
   encode (key) {
-    if (this.userEncoding) key = this.userEncoding.encode(key)
-    if (this.prefix) key = b.concat([this.prefix, key])
-    return key
+    return this._addPrefix(this.userEncoding.encode(key))
   }
 
-  encodeRange ({ gt, gte, lte, lt }) {
-    if (gt) gt = this.encode(gt)
-    else if (gte) gte = this.encode(gte)
-    else if (this.prefix) gte = this.prefix
+  encodeRange (range) {
+    const r = this._encodeRangeUser(range)
 
-    if (lt) lt = this.encode(lt)
-    else if (lte) lte = this.encode(lte)
-    else if (this.prefix) lt = b.concat([this.prefix.subarray(0, this.prefix.byteLength - 1), SEP_BUMPED])
+    if (r.gt) r.gt = this._addPrefix(r.gt)
+    else if (r.gte) r.gte = this._addPrefix(r.gte)
+    else if (this.prefix) r.gte = this.prefix
 
-    return { gt, gte, lte, lt }
+    if (r.lt) r.lt = this._addPrefix(r.lt)
+    else if (r.lte) r.lte = this._addPrefix(r.lte)
+    else if (this.prefix) r.lt = this.lt
+
+    return r
   }
 
   decode (key) {
-    if (this.prefix) key = key.subarray(this.prefix.byteLength)
-    if (this.userEncoding) key = this.userEncoding.decode(key)
-    return key
+    return this.userEncoding.decode(this.prefix ? key.subarray(this.prefix.byteLength) : key)
   }
 
-  sub (prefix, opts) {
-    return new SubEncoder(prefix, {
-      ...opts,
-      _parent: this.prefix,
-      _sub: true
-    })
+  sub (prefix, encoding) {
+    const prefixBuf = typeof prefix === 'string' ? b.from(prefix) : prefix
+    return new SubEncoder(createPrefix(prefixBuf, this.prefix), compat(encoding))
   }
+}
+
+function createPrefix (prefix, parent) {
+  if (prefix && parent) return b.concat([parent, prefix, SEP])
+  if (prefix) return b.concat([prefix, SEP])
+  if (parent) return b.concat([parent, SEP])
+  return SEP
+}
+
+function compat (enc) {
+  if (enc && enc.keyEncoding) return enc.keyEncoding
+  return enc
 }

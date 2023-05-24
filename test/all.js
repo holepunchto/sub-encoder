@@ -2,6 +2,7 @@ const test = require('brittle')
 
 const Hypercore = require('hypercore')
 const Hyperbee = require('hyperbee')
+const IndexEncoder = require('index-encoder')
 const ram = require('random-access-memory')
 const b = require('b4a')
 
@@ -50,10 +51,10 @@ test('sub key encoding with hyperbee', async t => {
 test('sub range encoding with hyperbee', async t => {
   const bee = new Hyperbee(new Hypercore(ram), { valueEncoding: 'utf-8' })
 
-  const enc = new SubEncoder({ keyEncoding: 'utf-8' })
-  const subA = enc.sub('sub-a', { keyEncoding: 'utf-8' })
-  const subB = enc.sub('sub-b', { keyEncoding: 'utf-8' })
-  const subC = enc.sub('sub-c', { keyEncoding: 'utf-8' })
+  const enc = new SubEncoder(null, 'utf-8')
+  const subA = enc.sub('sub-a', 'utf-8')
+  const subB = enc.sub('sub-b', 'utf-8')
+  const subC = enc.sub('sub-c', 'utf-8')
 
   await bee.put(enc.encode('d1'), 'd2')
   await bee.put(subA.encode('a1'), 'a1')
@@ -87,10 +88,10 @@ test('sub range encoding with hyperbee', async t => {
 test('sub range diff encoding with hyperbee', async t => {
   const bee = new Hyperbee(new Hypercore(ram), { valueEncoding: 'utf-8' })
 
-  const enc = new SubEncoder({ keyEncoding: 'utf-8' })
-  const subA = enc.sub('sub-a', { keyEncoding: 'utf-8' })
-  const subB = enc.sub('sub-b', { keyEncoding: 'utf-8' })
-  const subC = enc.sub('sub-c', { keyEncoding: 'utf-8' })
+  const enc = new SubEncoder(null, 'utf-8')
+  const subA = enc.sub('sub-a', 'utf-8')
+  const subB = enc.sub('sub-b', 'utf-8')
+  const subC = enc.sub('sub-c', 'utf-8')
 
   await bee.put(enc.encode('d1'), 'd2')
   await bee.put(subA.encode('a1'), 'a1')
@@ -125,8 +126,8 @@ test('supports the empty sub', async t => {
   const bee = new Hyperbee(new Hypercore(ram))
   const enc = new SubEncoder()
 
-  const sub1 = enc.sub('1', { keyEncoding: 'utf-8' })
-  const sub2 = enc.sub('2', { keyEncoding: 'utf-8' })
+  const sub1 = enc.sub('1', 'utf-8')
+  const sub2 = enc.sub('2', 'utf-8')
   const sub3 = enc.sub()
 
   await bee.put('', b.from('a'), { keyEncoding: sub1 })
@@ -143,9 +144,9 @@ test('can read out the empty key in subs', async t => {
   const bee = new Hyperbee(new Hypercore(ram))
   const enc = new SubEncoder()
 
-  const sub1 = enc.sub('1', { keyEncoding: 'utf-8' })
-  const sub2 = enc.sub('2', { keyEncoding: 'utf-8' })
-  const sub3 = enc.sub('3', { keyEncoding: 'binary' })
+  const sub1 = enc.sub('1', 'utf-8')
+  const sub2 = enc.sub('2', 'utf-8')
+  const sub3 = enc.sub('3', 'binary')
 
   await bee.put('', b.from('a'), { keyEncoding: sub1 })
   await bee.put('', b.from('b'), { keyEncoding: sub2 })
@@ -158,6 +159,33 @@ test('can read out the empty key in subs', async t => {
   t.is(n1[0].key, '')
   t.is(n2[0].key, '')
   t.alike(n3[0].key, b.alloc(1))
+})
+
+test('sub + index + hyperbee combo', async t => {
+  const root = new SubEncoder()
+  const enc = {
+    keyEncoding: root.sub(b.from([1]), {
+      keyEncoding: new IndexEncoder([
+        IndexEncoder.UINT,
+        IndexEncoder.STRING
+      ])
+    }),
+    valueEncoding: 'utf-8'
+  }
+  const bee = new Hyperbee(new Hypercore(ram))
+
+  await bee.put([1, 'a'], 'a', enc)
+  await bee.put([1, 'b'], 'b', enc)
+  await bee.put([2, 'aa'], 'aa', enc)
+  await bee.put([2, 'bb'], 'bb', enc)
+  await bee.put([3, 'aaa'], 'aaa', enc)
+  await bee.put([3, 'bbb'], 'bbb', enc)
+
+  const expectedKeys = [[2, 'aa'], [2, 'bb']]
+  for await (const node of bee.createReadStream({ gt: [1], lt: [3] }, enc)) {
+    t.alike(node.key, expectedKeys.shift())
+  }
+  t.is(expectedKeys.length, 0)
 })
 
 async function collect (ite) {
