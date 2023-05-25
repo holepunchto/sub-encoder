@@ -188,6 +188,12 @@ test('sub + index + hyperbee combo', async t => {
   t.is(expectedKeys.length, 0)
 })
 
+test('constructor-specified sub equivalent to calling .sub()', async t => {
+  const directSub = new SubEncoder('mysub', 'utf-8')
+  const roundaboutSub = (new SubEncoder()).sub('mysub', 'utf-8')
+  t.alike(directSub, roundaboutSub)
+})
+
 async function collect (ite) {
   const res = []
   for await (const node of ite) {

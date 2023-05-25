@@ -7,7 +7,10 @@ const SEP_BUMPED = b.from([0x1])
 module.exports = class SubEncoder {
   constructor (prefix, encoding) {
     this.userEncoding = codecs(encoding)
-    this.prefix = typeof prefix === 'string' ? b.from(prefix) : (prefix || null)
+
+    if (typeof prefix === 'string') prefix = b.from(prefix)
+    this.prefix = prefix ? b.concat([prefix, SEP]) : null
+
     this.lt = this.prefix && b.concat([this.prefix.subarray(0, this.prefix.byteLength - 1), SEP_BUMPED])
   }
 
@@ -55,10 +58,10 @@ module.exports = class SubEncoder {
 }
 
 function createPrefix (prefix, parent) {
-  if (prefix && parent) return b.concat([parent, prefix, SEP])
-  if (prefix) return b.concat([prefix, SEP])
-  if (parent) return b.concat([parent, SEP])
-  return SEP
+  if (prefix && parent) return b.concat([parent, prefix])
+  if (prefix) return prefix
+  if (parent) return parent
+  return b.alloc(0)
 }
 
 function compat (enc) {
