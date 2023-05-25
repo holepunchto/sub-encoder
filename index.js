@@ -3,11 +3,12 @@ const b = require('b4a')
 
 const SEP = b.alloc(1)
 const SEP_BUMPED = b.from([0x1])
+const EMPTY = b.alloc(0)
 
 module.exports = class SubEncoder {
-  constructor (prefix, encoding) {
+  constructor (prefix, encoding, parent = null) {
     this.userEncoding = codecs(encoding)
-    this.prefix = typeof prefix === 'string' ? b.from(prefix) : (prefix || null)
+    this.prefix = prefix != null ? createPrefix(prefix, parent) : null
     this.lt = this.prefix && b.concat([this.prefix.subarray(0, this.prefix.byteLength - 1), SEP_BUMPED])
   }
 
@@ -49,12 +50,13 @@ module.exports = class SubEncoder {
   }
 
   sub (prefix, encoding) {
-    const prefixBuf = typeof prefix === 'string' ? b.from(prefix) : prefix
-    return new SubEncoder(createPrefix(prefixBuf, this.prefix), compat(encoding))
+    return new SubEncoder(prefix || EMPTY, compat(encoding), this.prefix)
   }
 }
 
 function createPrefix (prefix, parent) {
+  prefix = typeof prefix === 'string' ? b.from(prefix) : prefix
+
   if (prefix && parent) return b.concat([parent, prefix, SEP])
   if (prefix) return b.concat([prefix, SEP])
   if (parent) return b.concat([parent, SEP])
