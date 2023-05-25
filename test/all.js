@@ -140,6 +140,38 @@ test('supports the empty sub', async t => {
   t.alike(n3[0].key, b.alloc(1))
 })
 
+test('supports the empty sub on top of another sub', async t => {
+  const bee = new Hyperbee(new Hypercore(ram))
+  const enc = new SubEncoder()
+
+  const sub1 = enc.sub('1', 'utf-8')
+  const subSubEmpty = sub1.sub()
+  const subSub1 = sub1.sub('not empty', 'utf-8')
+
+  await bee.put('', 'sub1 Entry', { keyEncoding: sub1 })
+  await bee.put('', 'subSub1 Entry', { keyEncoding: subSub1 })
+  await bee.put(b.alloc(1), 'EmptySubsub entry', { keyEncoding: subSubEmpty })
+
+  const n3 = await collect(bee.createReadStream({ keyEncoding: subSubEmpty }))
+
+  t.is(n3.length, 1)
+  t.alike(n3[0].key, b.alloc(1))
+})
+
+test('empty str is a valid prefix, causing no overlap', async t => {
+  const bee = new Hyperbee(new Hypercore(ram))
+  const enc = new SubEncoder()
+
+  const sub1 = enc.sub('', 'utf-8')
+  const sub2 = enc.sub('other', 'utf-8')
+
+  await bee.put('hey', 'ho', { keyEncoding: sub1 })
+  await bee.put('not', 'a part', { keyEncoding: sub2 })
+  const res = await collect(bee.createReadStream({ keyEncoding: sub1 }))
+  t.is(res.length, 1)
+  t.alike(res[0].key, 'hey')
+})
+
 test('can read out the empty key in subs', async t => {
   const bee = new Hyperbee(new Hypercore(ram))
   const enc = new SubEncoder()
