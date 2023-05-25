@@ -32,9 +32,13 @@ for await (const node of bee.createReadStream({ lt: 'b2' }, { keyEncoding: subB 
 
 Create a new SubEncoder. Optionally set the initial prefix and encoding.
 
+`prefix` can be string or Buffer. If set, acts as an initial sub instead of starting at the Hyperbee's base level.
+
 #### `subEnc = enc.sub(prefix, [encoding])`
 
-Make a new sub. Returns a SubEncoder.
+Make a new sub. Returns a SubEncoder, so subs can easily be nested.
+
+`prefix` can be string or Buffer.
 
 #### `buf = enc.encode(key)`
 
@@ -49,4 +53,4 @@ Decode a key.
 Encode a range.
 
 ### License
-MIT
+Apache-2.0
