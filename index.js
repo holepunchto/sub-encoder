@@ -3,6 +3,7 @@ const b = require('b4a')
 
 const SEP = b.alloc(1)
 const SEP_BUMPED = b.from([0x1])
+const EMPTY = b.alloc(0)
 
 module.exports = class SubEncoder {
   constructor (prefix, encoding, parent = null) {
@@ -49,10 +50,7 @@ module.exports = class SubEncoder {
   }
 
   sub (prefix, encoding) {
-    // Differentiate empty sub on existing subEncoder from new empty subEncoder
-    if (prefix == null) prefix = b.alloc(0)
-
-    return new SubEncoder(prefix, compat(encoding), this.prefix)
+    return new SubEncoder(prefix || EMPTY, compat(encoding), this.prefix)
   }
 }
 
