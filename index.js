@@ -5,12 +5,9 @@ const SEP = b.alloc(1)
 const SEP_BUMPED = b.from([0x1])
 
 module.exports = class SubEncoder {
-  constructor (prefix, encoding) {
+  constructor (prefix, encoding, parent = null) {
     this.userEncoding = codecs(encoding)
-
-    if (typeof prefix === 'string') prefix = b.from(prefix)
-    this.prefix = prefix ? b.concat([prefix, SEP]) : null
-
+    this.prefix = prefix != null ? createPrefix(prefix, parent) : null
     this.lt = this.prefix && b.concat([this.prefix.subarray(0, this.prefix.byteLength - 1), SEP_BUMPED])
   }
 
@@ -52,16 +49,20 @@ module.exports = class SubEncoder {
   }
 
   sub (prefix, encoding) {
-    const prefixBuf = typeof prefix === 'string' ? b.from(prefix) : prefix
-    return new SubEncoder(createPrefix(prefixBuf, this.prefix), compat(encoding))
+    // Differentiate empty sub on existing subEncoder from new empty subEncoder
+    if (prefix == null) prefix = b.alloc(0)
+
+    return new SubEncoder(prefix, compat(encoding), this.prefix)
   }
 }
 
 function createPrefix (prefix, parent) {
-  if (prefix && parent) return b.concat([parent, prefix])
-  if (prefix) return prefix
-  if (parent) return parent
-  return b.alloc(0)
+  prefix = typeof prefix === 'string' ? b.from(prefix) : prefix
+
+  if (prefix && parent) return b.concat([parent, prefix, SEP])
+  if (prefix) return b.concat([prefix, SEP])
+  if (parent) return b.concat([parent, SEP])
+  return SEP
 }
 
 function compat (enc) {
