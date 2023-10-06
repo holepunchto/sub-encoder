@@ -5,6 +5,7 @@ const Hyperbee = require('hyperbee')
 const IndexEncoder = require('index-encoder')
 const ram = require('random-access-memory')
 const b = require('b4a')
+const cenc = require('compact-encoding')
 
 const SEP = b.alloc(1)
 
@@ -82,6 +83,51 @@ test('sub range encoding with hyperbee', async t => {
     const nodes = await collect(bee.createReadStream(range, { keyEncoding: subB }))
     t.is(nodes.length, 1)
     t.is(nodes[0].key, 'b2')
+  }
+})
+
+test('sub range encoding encodes non-undefined falsy values', async t => {
+  const bee = new Hyperbee(new Hypercore(ram), { valueEncoding: 'utf-8' })
+
+  const enc = new SubEncoder()
+
+  const preSub = enc.sub('sub-a')
+  const keyEncoding = enc.sub('sub-b', cenc.lexint)
+  const postSub = enc.sub('sub-c')
+
+  await bee.put('what', 'ever', { keyEncoding: preSub })
+  await bee.put('what', 'ever', { keyEncoding: postSub })
+
+  await bee.put(0, 'entry0', { keyEncoding })
+  await bee.put(1, 'entry1', { keyEncoding })
+
+  {
+    const range = { gt: 0 }
+    const nodes = await collect(bee.createReadStream(range, { keyEncoding }))
+    t.is(nodes.length, 1, 'gt works')
+    t.is(nodes[0].key, 1)
+  }
+
+  {
+    const range = { lt: 0 }
+    const nodes = await collect(bee.createReadStream(range, { keyEncoding }))
+    t.is(nodes.length, 0, 'lt works')
+  }
+
+  {
+    const range = { lte: 0 }
+    const nodes = await collect(bee.createReadStream(range, { keyEncoding }))
+    t.is(nodes.length, 1, 'lte works')
+    t.is(nodes[0].key, 0)
+  }
+
+  {
+    // Note: also passes when processed as falsy value
+    // would ideally have a value below 0 in the bee, but lexint does not support that
+    const range = { gte: 0 }
+    const nodes = await collect(bee.createReadStream(range, { keyEncoding }))
+    t.is(nodes.length, 2, 'gte works')
+    t.is(nodes[0].key, 0)
   }
 })
 
