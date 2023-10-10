@@ -16,10 +16,10 @@ module.exports = class SubEncoder {
     if (this.userEncoding.encodeRange) return this.userEncoding.encodeRange(r)
 
     const res = {}
-    if (r.gt !== undefined) res.gt = this.userEncoding.encode(r.gt)
-    if (r.gte !== undefined) res.gte = this.userEncoding.encode(r.gte)
-    if (r.lte !== undefined) res.lte = this.userEncoding.encode(r.lte)
-    if (r.lt !== undefined) res.lt = this.userEncoding.encode(r.lt)
+    if (r.gt != null) res.gt = this.userEncoding.encode(r.gt)
+    if (r.gte != null) res.gte = this.userEncoding.encode(r.gte)
+    if (r.lte != null) res.lte = this.userEncoding.encode(r.lte)
+    if (r.lt != null) res.lt = this.userEncoding.encode(r.lt)
 
     return res
   }
