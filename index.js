@@ -50,7 +50,8 @@ module.exports = class SubEncoder {
   }
 
   sub (prefix, encoding) {
-    return new SubEncoder(prefix || EMPTY, compat(encoding), this.prefix)
+    prefix = prefix != null ? this.userEncoding.encode(prefix) : EMPTY
+    return new SubEncoder(prefix, compat(encoding), this.prefix)
   }
 }
 
