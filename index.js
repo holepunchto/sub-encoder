@@ -15,12 +15,13 @@ module.exports = class SubEncoder {
   _encodeRangeUser (r) {
     if (this.userEncoding.encodeRange) return this.userEncoding.encodeRange(r)
 
-    return {
-      gt: r.gt && this.userEncoding.encode(r.gt),
-      gte: r.gte && this.userEncoding.encode(r.gte),
-      lte: r.lte && this.userEncoding.encode(r.lte),
-      lt: r.lt && this.userEncoding.encode(r.lt)
-    }
+    const res = {}
+    if (r.gt != null) res.gt = this.userEncoding.encode(r.gt)
+    if (r.gte != null) res.gte = this.userEncoding.encode(r.gte)
+    if (r.lte != null) res.lte = this.userEncoding.encode(r.lte)
+    if (r.lt != null) res.lt = this.userEncoding.encode(r.lt)
+
+    return res
   }
 
   _addPrefix (key) {
