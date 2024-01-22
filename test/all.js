@@ -279,3 +279,47 @@ async function collect (ite) {
   }
   return res
 }
+
+test('can create sub on an encoded sub', async t => {
+  const enc = new SubEncoder()
+  const mainSub = enc.sub('matrix', cenc.lexint)
+  const sub2 = enc.sub('irrelevant')
+
+  const bee = new Hyperbee(new Hypercore(ram))
+
+  // To make sure it doesn't show up anywhere in the other subs
+  await bee.put('some key', 'I am irrelevant', { keyEncoding: sub2 })
+
+  // Represents a matrix of 2 rows
+  const row0 = mainSub.sub(0, cenc.lexint)
+  const row1 = mainSub.sub(1, cenc.lexint)
+
+  await bee.put(0, 'value at 0-0', { keyEncoding: row0 })
+  await bee.put(0, 'value at 1-0', { keyEncoding: row1 })
+  await bee.put(1, 'value at 0-1', { keyEncoding: row0 })
+  await bee.put(1, 'value at 1-1', { keyEncoding: row1 })
+  await bee.put(2, 'value at 0-2', { keyEncoding: row0 })
+  await bee.put(2, 'value at 1-2', { keyEncoding: row1 })
+
+  t.is((await bee.get(0, { keyEncoding: row0, valueEncoding: 'utf-8' })).value, 'value at 0-0')
+  t.is((await bee.get(0, { keyEncoding: row1, valueEncoding: 'utf-8' })).value, 'value at 1-0')
+  t.is((await bee.get(2, { keyEncoding: row1, valueEncoding: 'utf-8' })).value, 'value at 1-2')
+
+  {
+    const values = []
+    for await (const entry of bee.createReadStream({ keyEncoding: row0, valueEncoding: 'utf-8' })) values.push(entry.value)
+    t.alike(values, ['value at 0-0', 'value at 0-1', 'value at 0-2'], 'row0 correct')
+  }
+
+  {
+    const values = []
+    for await (const entry of bee.createReadStream({ keyEncoding: row1, valueEncoding: 'utf-8' })) values.push(entry.value)
+    t.alike(values, ['value at 1-0', 'value at 1-1', 'value at 1-2'], 'row1 correct')
+  }
+
+  {
+    const values = []
+    for await (const entry of bee.createReadStream({ gte: 1, lt: 2 }, { keyEncoding: row1, valueEncoding: 'utf-8' })) values.push(entry.value)
+    t.alike(values, ['value at 1-1'], 'correctly encodes range args')
+  }
+})
