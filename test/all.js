@@ -11,7 +11,7 @@ const SEP = b.alloc(1)
 
 const SubEncoder = require('..')
 
-test('simple sub key encoding', t => {
+test('simple sub key encoding', (t) => {
   const enc = new SubEncoder()
   const sub1 = enc.sub('a')
   const sub2 = sub1.sub('b')
@@ -30,7 +30,7 @@ test('simple sub key encoding', t => {
   t.alike(key, sub2.decode(k3))
 })
 
-test('sub key encoding with hyperbee', async t => {
+test('sub key encoding with hyperbee', async (t) => {
   const bee = new Hyperbee(new Hypercore(ram))
   const enc = new SubEncoder()
 
@@ -49,7 +49,7 @@ test('sub key encoding with hyperbee', async t => {
   t.alike(n2.value, b.from('b'))
 })
 
-test('sub range encoding with hyperbee', async t => {
+test('sub range encoding with hyperbee', async (t) => {
   const bee = new Hyperbee(new Hypercore(ram), { valueEncoding: 'utf-8' })
 
   const enc = new SubEncoder(null, 'utf-8')
@@ -66,27 +66,33 @@ test('sub range encoding with hyperbee', async t => {
 
   {
     const range = { lt: 'sub' }
-    const nodes = await collect(bee.createReadStream(range, { keyEncoding: enc }))
+    const nodes = await collect(
+      bee.createReadStream(range, { keyEncoding: enc })
+    )
     t.is(nodes.length, 1)
     t.is(nodes[0].key, 'd1')
   }
 
   {
     const range = {}
-    const nodes = await collect(bee.createReadStream(range, { keyEncoding: subA }))
+    const nodes = await collect(
+      bee.createReadStream(range, { keyEncoding: subA })
+    )
     t.is(nodes.length, 1)
     t.is(nodes[0].key, 'a1')
   }
 
   {
     const range = { gt: 'b1', lt: 'b3' }
-    const nodes = await collect(bee.createReadStream(range, { keyEncoding: subB }))
+    const nodes = await collect(
+      bee.createReadStream(range, { keyEncoding: subB })
+    )
     t.is(nodes.length, 1)
     t.is(nodes[0].key, 'b2')
   }
 })
 
-test('sub range encoding encodes non-undefined falsy values', async t => {
+test('sub range encoding encodes non-undefined falsy values', async (t) => {
   const bee = new Hyperbee(new Hypercore(ram), { valueEncoding: 'utf-8' })
 
   const enc = new SubEncoder()
@@ -131,7 +137,7 @@ test('sub range encoding encodes non-undefined falsy values', async t => {
   }
 })
 
-test('sub range diff encoding with hyperbee', async t => {
+test('sub range diff encoding with hyperbee', async (t) => {
   const bee = new Hyperbee(new Hypercore(ram), { valueEncoding: 'utf-8' })
 
   const enc = new SubEncoder(null, 'utf-8')
@@ -148,27 +154,33 @@ test('sub range diff encoding with hyperbee', async t => {
 
   {
     const range = { lt: 'sub' }
-    const nodes = await collect(bee.createDiffStream(0, range, { keyEncoding: enc }))
+    const nodes = await collect(
+      bee.createDiffStream(0, range, { keyEncoding: enc })
+    )
     t.is(nodes.length, 1)
     t.is(nodes[0].left.key, 'd1')
   }
 
   {
     const range = {}
-    const nodes = await collect(bee.createDiffStream(0, range, { keyEncoding: subA }))
+    const nodes = await collect(
+      bee.createDiffStream(0, range, { keyEncoding: subA })
+    )
     t.is(nodes.length, 1)
     t.is(nodes[0].left.key, 'a1')
   }
 
   {
     const range = { gt: 'b1', lt: 'b3' }
-    const nodes = await collect(bee.createDiffStream(0, range, { keyEncoding: subB }))
+    const nodes = await collect(
+      bee.createDiffStream(0, range, { keyEncoding: subB })
+    )
     t.is(nodes.length, 1)
     t.is(nodes[0].left.key, 'b2')
   }
 })
 
-test('supports the empty sub', async t => {
+test('supports the empty sub', async (t) => {
   const bee = new Hyperbee(new Hypercore(ram))
   const enc = new SubEncoder()
 
@@ -186,7 +198,7 @@ test('supports the empty sub', async t => {
   t.alike(n3[0].key, b.alloc(1))
 })
 
-test('supports the empty sub on top of another sub', async t => {
+test('supports the empty sub on top of another sub', async (t) => {
   const bee = new Hyperbee(new Hypercore(ram))
   const enc = new SubEncoder()
 
@@ -204,7 +216,7 @@ test('supports the empty sub on top of another sub', async t => {
   t.alike(n3[0].key, b.alloc(1))
 })
 
-test('empty str is a valid prefix, causing no overlap', async t => {
+test('empty str is a valid prefix, causing no overlap', async (t) => {
   const bee = new Hyperbee(new Hypercore(ram))
   const enc = new SubEncoder()
 
@@ -218,7 +230,7 @@ test('empty str is a valid prefix, causing no overlap', async t => {
   t.alike(res[0].key, 'hey')
 })
 
-test('can read out the empty key in subs', async t => {
+test('can read out the empty key in subs', async (t) => {
   const bee = new Hyperbee(new Hypercore(ram))
   const enc = new SubEncoder()
 
@@ -239,14 +251,11 @@ test('can read out the empty key in subs', async t => {
   t.alike(n3[0].key, b.alloc(1))
 })
 
-test('sub + index + hyperbee combo', async t => {
+test('sub + index + hyperbee combo', async (t) => {
   const root = new SubEncoder()
   const enc = {
     keyEncoding: root.sub(b.from([1]), {
-      keyEncoding: new IndexEncoder([
-        IndexEncoder.UINT,
-        IndexEncoder.STRING
-      ])
+      keyEncoding: new IndexEncoder([IndexEncoder.UINT, IndexEncoder.STRING])
     }),
     valueEncoding: 'utf-8'
   }
@@ -259,20 +268,23 @@ test('sub + index + hyperbee combo', async t => {
   await bee.put([3, 'aaa'], 'aaa', enc)
   await bee.put([3, 'bbb'], 'bbb', enc)
 
-  const expectedKeys = [[2, 'aa'], [2, 'bb']]
+  const expectedKeys = [
+    [2, 'aa'],
+    [2, 'bb']
+  ]
   for await (const node of bee.createReadStream({ gt: [1], lt: [3] }, enc)) {
     t.alike(node.key, expectedKeys.shift())
   }
   t.is(expectedKeys.length, 0)
 })
 
-test('constructor-specified sub equivalent to calling .sub()', async t => {
+test('constructor-specified sub equivalent to calling .sub()', async (t) => {
   const directSub = new SubEncoder('mysub', 'utf-8')
-  const roundaboutSub = (new SubEncoder()).sub('mysub', 'utf-8')
+  const roundaboutSub = new SubEncoder().sub('mysub', 'utf-8')
   t.alike(directSub, roundaboutSub)
 })
 
-async function collect (ite) {
+async function collect(ite) {
   const res = []
   for await (const node of ite) {
     res.push(node)

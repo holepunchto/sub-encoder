@@ -1,7 +1,9 @@
 # sub-encoder
+
 Generate sub encodings for key/value stores
 
 ### Usage
+
 ```js
 const enc = new SubEncoder()
 const subA = enc.sub('sub-a')
@@ -22,7 +24,10 @@ for await (const node of bee.createReadStream({ keyEncoding: subA })) {
 }
 
 // The range options will be encoded properly too
-for await (const node of bee.createReadStream({ lt: 'b2' }, { keyEncoding: subB })) {
+for await (const node of bee.createReadStream(
+  { lt: 'b2' },
+  { keyEncoding: subB }
+)) {
 }
 ```
 
@@ -53,4 +58,5 @@ Decode a key.
 Encode a range.
 
 ### License
+
 Apache-2.0
