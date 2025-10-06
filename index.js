@@ -10,11 +10,7 @@ module.exports = class SubEncoder {
     this.userEncoding = codecs(encoding)
     this.prefix = prefix != null ? createPrefix(prefix, parent) : null
     this.lt =
-      this.prefix &&
-      b.concat([
-        this.prefix.subarray(0, this.prefix.byteLength - 1),
-        SEP_BUMPED
-      ])
+      this.prefix && b.concat([this.prefix.subarray(0, this.prefix.byteLength - 1), SEP_BUMPED])
   }
 
   _encodeRangeUser(r) {
@@ -52,9 +48,7 @@ module.exports = class SubEncoder {
   }
 
   decode(key) {
-    return this.userEncoding.decode(
-      this.prefix ? key.subarray(this.prefix.byteLength) : key
-    )
+    return this.userEncoding.decode(this.prefix ? key.subarray(this.prefix.byteLength) : key)
   }
 
   sub(prefix, encoding) {

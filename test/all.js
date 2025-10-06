@@ -66,27 +66,21 @@ test('sub range encoding with hyperbee', async (t) => {
 
   {
     const range = { lt: 'sub' }
-    const nodes = await collect(
-      bee.createReadStream(range, { keyEncoding: enc })
-    )
+    const nodes = await collect(bee.createReadStream(range, { keyEncoding: enc }))
     t.is(nodes.length, 1)
     t.is(nodes[0].key, 'd1')
   }
 
   {
     const range = {}
-    const nodes = await collect(
-      bee.createReadStream(range, { keyEncoding: subA })
-    )
+    const nodes = await collect(bee.createReadStream(range, { keyEncoding: subA }))
     t.is(nodes.length, 1)
     t.is(nodes[0].key, 'a1')
   }
 
   {
     const range = { gt: 'b1', lt: 'b3' }
-    const nodes = await collect(
-      bee.createReadStream(range, { keyEncoding: subB })
-    )
+    const nodes = await collect(bee.createReadStream(range, { keyEncoding: subB }))
     t.is(nodes.length, 1)
     t.is(nodes[0].key, 'b2')
   }
@@ -154,27 +148,21 @@ test('sub range diff encoding with hyperbee', async (t) => {
 
   {
     const range = { lt: 'sub' }
-    const nodes = await collect(
-      bee.createDiffStream(0, range, { keyEncoding: enc })
-    )
+    const nodes = await collect(bee.createDiffStream(0, range, { keyEncoding: enc }))
     t.is(nodes.length, 1)
     t.is(nodes[0].left.key, 'd1')
   }
 
   {
     const range = {}
-    const nodes = await collect(
-      bee.createDiffStream(0, range, { keyEncoding: subA })
-    )
+    const nodes = await collect(bee.createDiffStream(0, range, { keyEncoding: subA }))
     t.is(nodes.length, 1)
     t.is(nodes[0].left.key, 'a1')
   }
 
   {
     const range = { gt: 'b1', lt: 'b3' }
-    const nodes = await collect(
-      bee.createDiffStream(0, range, { keyEncoding: subB })
-    )
+    const nodes = await collect(bee.createDiffStream(0, range, { keyEncoding: subB }))
     t.is(nodes.length, 1)
     t.is(nodes[0].left.key, 'b2')
   }

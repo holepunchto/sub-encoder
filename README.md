@@ -24,10 +24,7 @@ for await (const node of bee.createReadStream({ keyEncoding: subA })) {
 }
 
 // The range options will be encoded properly too
-for await (const node of bee.createReadStream(
-  { lt: 'b2' },
-  { keyEncoding: subB }
-)) {
+for await (const node of bee.createReadStream({ lt: 'b2' }, { keyEncoding: subB })) {
 }
 ```
 
