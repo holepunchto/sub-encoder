@@ -8,7 +8,7 @@ const EMPTY = b.alloc(0)
 module.exports = class SubEncoder {
   constructor(prefix, encoding, parent = null) {
     this.userEncoding = codecs(encoding)
-    this.prefix = prefix != null ? createPrefix(prefix, parent) : null
+    this.prefix = prefix != null ? createPrefix(prefix, parent) : null // eslint-disable-line eqeqeq
     this.lt =
       this.prefix && b.concat([this.prefix.subarray(0, this.prefix.byteLength - 1), SEP_BUMPED])
   }
@@ -17,10 +17,10 @@ module.exports = class SubEncoder {
     if (this.userEncoding.encodeRange) return this.userEncoding.encodeRange(r)
 
     const res = {}
-    if (r.gt != null) res.gt = this.userEncoding.encode(r.gt)
-    if (r.gte != null) res.gte = this.userEncoding.encode(r.gte)
-    if (r.lte != null) res.lte = this.userEncoding.encode(r.lte)
-    if (r.lt != null) res.lt = this.userEncoding.encode(r.lt)
+    if (r.gt != null) res.gt = this.userEncoding.encode(r.gt) // eslint-disable-line eqeqeq
+    if (r.gte != null) res.gte = this.userEncoding.encode(r.gte) // eslint-disable-line eqeqeq
+    if (r.lte != null) res.lte = this.userEncoding.encode(r.lte) // eslint-disable-line eqeqeq
+    if (r.lt != null) res.lt = this.userEncoding.encode(r.lt) // eslint-disable-line eqeqeq
 
     return res
   }
