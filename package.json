@@ -4,7 +4,11 @@
   "description": "Generate sub encodings for key/value stores",
   "main": "index.js",
   "scripts": {
-    "test": "standard && brittle test/*.js"
+    "format": "prettier --write .",
+    "lint": "prettier --check . && lunte",
+    "test": "npm run test:node && npm run test:bare",
+    "test:node": "brittle-node test/*.js",
+    "test:bare": "brittle-bare test/*.js"
   },
   "repository": {
     "type": "git",
@@ -27,8 +31,10 @@
     "hyperbee": "^2.11.0",
     "hypercore": "^10.3.2",
     "index-encoder": "^3.0.0",
-    "random-access-memory": "^6.0.0",
-    "standard": "^17.0.0"
+    "lunte": "^1.0.0",
+    "prettier": "^3.6.2",
+    "prettier-config-holepunch": "^2.0.0",
+    "random-access-memory": "^6.0.0"
   },
   "dependencies": {
     "b4a": "^1.6.0",

@@ -1,7 +1,9 @@
 # sub-encoder
+
 Generate sub encodings for key/value stores
 
 ### Usage
+
 ```js
 const enc = new SubEncoder()
 const subA = enc.sub('sub-a')
@@ -53,4 +55,5 @@ Decode a key.
 Encode a range.
 
 ### License
+
 Apache-2.0
